@@ -88,7 +88,11 @@ class _ConnectionHandler:
             #   this is probably the most reasonable way, but requires the posix_ipc package
             fd = util._memfd_create("netenv-shared-memory")
             assert os.write(fd, b"\x00" * total_size) == total_size
-            mm = mmap.mmap(fileno=fd, length=total_size, flags=mmap.MAP_SHARED)
+            mm = mmap.mmap(
+                fileno=fd,
+                length=total_size,
+                flags=mmap.MAP_SHARED,  # pylint: disable=no-member
+            )
             buf = memoryview(mm)
             util._send_fd(self._conn, fd)
             act_buf = buf[:act_space_size]
@@ -182,7 +186,7 @@ class Server:
         self._sock = None
 
     def __repr__(self):
-        return f"<Server addr={self._addr} port={self._port}>"
+        return f"<Server addr={self._addr}>"
 
     def listen(self):
         """
@@ -203,7 +207,7 @@ class Server:
         with self._sock:
             self._sock.listen(1)
             while True:
-                conn, addr = self._sock.accept()
+                conn, _addr = self._sock.accept()
                 handler = _ConnectionHandler(conn=conn, make_venv=self._make_venv)
                 t = threading.Thread(target=handler.handle)
                 t.start()

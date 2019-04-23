@@ -47,7 +47,9 @@ def test_socket_stream():
     with tempfile.TemporaryDirectory() as tmpdir:
         socket_path = os.path.join(tmpdir, "test.sock")
 
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server = socket.socket(
+            socket.AF_UNIX, socket.SOCK_STREAM  # pylint: disable=no-member
+        )
         server.bind(socket_path)
         server.listen(1)
 
@@ -65,7 +67,9 @@ def test_socket_stream():
         t = threading.Thread(target=server_loop, daemon=True)
         t.start()
 
-        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client = socket.socket(
+            socket.AF_UNIX, socket.SOCK_STREAM  # pylint: disable=no-member
+        )
         client.connect(socket_path)
         stream = net._Stream(client)
         data = bytearray(8192)

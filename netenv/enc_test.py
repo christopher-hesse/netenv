@@ -3,6 +3,7 @@ import numpy as np
 
 from . import enc
 from .testing import make_fake_socket
+from .util_test import TEST_SPACES
 
 
 def assert_spaces_equal(s1, s2):
@@ -29,25 +30,7 @@ def test_serialize():
     out_options = read_s.recv_dict()
     assert in_options == out_options
 
-    space_tests = [
-        gym.spaces.Dict(
-            [
-                ("s1", gym.spaces.Box(shape=(8, 8), low=0, high=128, dtype=np.uint8)),
-                (
-                    "s2",
-                    gym.spaces.Box(
-                        shape=(16, 16, 16), low=-1.0, high=1.0, dtype=np.float64
-                    ),
-                ),
-            ]
-        ),
-        gym.spaces.Dict([("s1", gym.spaces.MultiBinary(10))]),
-        gym.spaces.Dict([("s1", gym.spaces.Discrete(12))]),
-        gym.spaces.Dict(
-            [("s1", gym.spaces.Box(shape=(8, 8), low=0, high=128, dtype=np.uint8))]
-        ),
-    ]
-    for in_space in space_tests:
+    for in_space in TEST_SPACES:
         write_bio, write_s = make_fake_socket()
         write_s.send_dict(enc._dict_space_to_dict(in_space))
         _read_bio, read_s = make_fake_socket(write_bio.getvalue())
@@ -70,5 +53,5 @@ def test_json_coding():
         e=b"\x00\x01\x00",
     )
     out_data = enc.decode_json(enc.encode_json(in_data))
-    for k in in_data.keys():
+    for k in in_data:
         assert np.array_equal(in_data[k], out_data[k])

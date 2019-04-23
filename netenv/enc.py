@@ -31,12 +31,12 @@ def _dict_space_to_dict(dict_space):
     return result
 
 
-def _dict_to_dict_space(dict):
+def _dict_to_dict_space(dict_space_dict):
     """
     Convert a dict space dictionary back to a dict space
     """
     spaces = []
-    for d in dict["spaces"]:
+    for d in dict_space_dict["spaces"]:
         dtype = np.dtype(d["dtype"])
         class_name = d["class_name"]
         if class_name == "Box":
@@ -57,22 +57,23 @@ def _dict_to_dict_space(dict):
 
 
 class JSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
+    # https://github.com/PyCQA/pylint/issues/414
+    def default(self, o):  # pylint: disable=method-hidden
+        if isinstance(o, np.ndarray):
             return dict(
                 __kind__="numpy",
-                dtype=obj.dtype.name,
-                shape=obj.shape,
-                data=base64.b64encode(obj.tobytes()).decode("utf8"),
+                dtype=o.dtype.name,
+                shape=o.shape,
+                data=base64.b64encode(o.tobytes()).decode("utf8"),
             )
-        elif isinstance(obj, np.float32):
-            return float(obj)
-        elif isinstance(obj, np.bool_):
-            return bool(obj)
-        elif isinstance(obj, bytes):
-            return dict(__kind__="bytes", data=base64.b64encode(obj).decode("utf8"))
+        elif isinstance(o, np.float32):
+            return float(o)
+        elif isinstance(o, np.bool_):
+            return bool(o)
+        elif isinstance(o, bytes):
+            return dict(__kind__="bytes", data=base64.b64encode(o).decode("utf8"))
         else:
-            return super().default(obj)
+            return super().default(o)
 
 
 def json_decoder(dct):

@@ -1,9 +1,9 @@
 import threading
-import pytest
 import os
 import functools
 import sys
 
+import pytest
 import numpy as np
 import gym
 import gym.spaces
@@ -221,7 +221,7 @@ def env_speed(kind, make_env, benchmark, use_shared_memory=False):
         socket_kind = kind
         # can't use dummyvecenv with retro since you can only have one instance per process
         vec_env_class = DummyVecEnv
-        if make_env == make_retro_env:
+        if make_env is make_retro_env:
             # can't use SubprocVecEnv because it doesn't handle dict observation spaces the same way as DummyVecEnv
             vec_env_class = ShmemVecEnv
 
@@ -260,7 +260,7 @@ def env_speed(kind, make_env, benchmark, use_shared_memory=False):
         step_count = 0
         while step_count < max_steps:
             venv.step_async(act)
-            obs, rews, dones, infos = venv.step_wait()
+            venv.step_wait()
             step_count += 1
 
     benchmark(lambda: rollout(1000))
