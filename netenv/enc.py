@@ -68,6 +68,8 @@ class JSONEncoder(json.JSONEncoder):
             )
         elif isinstance(o, np.float32):
             return float(o)
+        elif isinstance(o, np.uint8):
+            return int(o)
         elif isinstance(o, np.bool_):
             return bool(o)
         elif isinstance(o, bytes):
