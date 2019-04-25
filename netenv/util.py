@@ -26,7 +26,7 @@ def _align_memoryview(mv, align=ALIGNMENT):
     return mv[start:end]
 
 
-def _calc_space_size(num_envs, space, align=ALIGNMENT):
+def calc_space_size(num_envs, space, align=ALIGNMENT):
     """
     Calculate the size of a space for the given number of envs, including padding for memory alignment
     """
@@ -43,14 +43,14 @@ def _calc_space_size(num_envs, space, align=ALIGNMENT):
     return space_size + (align - 1)
 
 
-def _create_space_arrays(num_envs, space, buf=None, align=ALIGNMENT):
+def create_space_arrays(num_envs, space, buf=None, align=ALIGNMENT):
     """
     Create arrays for a space, returns an OrderedDict of numpy arrays along with a backing bytearray buffer
 
     The buffer may be provided and will be used instead of allocating a new buffer
     """
     if buf is None:
-        buf = bytearray(_calc_space_size(num_envs, space, align=align))
+        buf = bytearray(calc_space_size(num_envs, space, align=align))
     mv = memoryview(buf)
     aligned_mv = _align_memoryview(mv, align=align)
     offset = 0
@@ -72,7 +72,7 @@ def _create_space_arrays(num_envs, space, buf=None, align=ALIGNMENT):
     return result, aligned_mv
 
 
-def _create_socket(kind):
+def create_socket(kind):
     """
     Create a socket of the specified kind
     """
@@ -91,7 +91,7 @@ def _create_socket(kind):
     return s
 
 
-def _recv_fd(sock):
+def recv_fd(sock):
     """
     Receive a file descriptor over a unix domain socket
 
@@ -113,7 +113,7 @@ def _recv_fd(sock):
     return fds[0]
 
 
-def _send_fd(sock, fd):
+def send_fd(sock, fd):
     """
     Send a file descriptor over a unix domain socket
 
@@ -131,7 +131,7 @@ def _send_fd(sock, fd):
     )
 
 
-def _memfd_create(name):
+def memfd_create(name):
     """
     Create an anonymous memory backed file descriptor on Linux
 
@@ -139,10 +139,10 @@ def _memfd_create(name):
     """
     # make sure we are on 64 bit linux, otherwise this is probably the wrong syscall id
     assert sys.platform == "linux" and sys.maxsize > 2 ** 32
-    SYS_memfd_create = 319
+    SYSmemfd_create = 319
     libc = ctypes.CDLL(None)
     flags = 0
-    return libc.syscall(SYS_memfd_create, name, flags)
+    return libc.syscall(SYSmemfd_create, name, flags)
 
 
 def _space_is_wrapped(space):
@@ -153,7 +153,7 @@ def _space_is_wrapped(space):
         return False
 
 
-def _convert_dict_space(in_space, wrap, is_action):
+def convert_dict_space(in_space, wrap, is_action):
     """
     Convert/unconvert a simple space to a dictionary space
 
@@ -195,7 +195,7 @@ def _convert_dict_space(in_space, wrap, is_action):
     return out_space, process_fn
 
 
-class _DictWrapper:
+class DictWrapper:
     """
     Wrap or unwrap simple observation/action spaces on a VecEnv as dict spaces
     """
@@ -203,10 +203,10 @@ class _DictWrapper:
     def __init__(self, env, mode="wrap"):
         self._env = env
 
-        self.action_space, self._process_act = _convert_dict_space(
+        self.action_space, self._process_act = convert_dict_space(
             self._env.action_space, wrap=True, is_action=True
         )
-        self.observation_space, self._process_obs = _convert_dict_space(
+        self.observation_space, self._process_obs = convert_dict_space(
             self._env.observation_space, wrap=True, is_action=False
         )
 

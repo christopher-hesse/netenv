@@ -9,7 +9,7 @@ import gym.spaces
 import numpy as np
 
 
-def _dict_space_to_dict(dict_space):
+def dict_space_to_dict(dict_space):
     """
     Convert a dict space to a dictionary
     """
@@ -31,7 +31,7 @@ def _dict_space_to_dict(dict_space):
     return result
 
 
-def _dict_to_dict_space(dict_space_dict):
+def dict_to_dict_space(dict_space_dict):
     """
     Convert a dict space dictionary back to a dict space
     """

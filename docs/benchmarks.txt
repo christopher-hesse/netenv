@@ -1,0 +1,52 @@
+====================================================================================================================== test session starts ====================================================================================================================== platform win32 -- Python 3.6.6, pytest-4.3.0, py-1.8.0, pluggy-0.9.0
+benchmark: 3.2.2 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: C:\p\netenv, inifile:
+plugins: benchmark-3.2.2
+collected 13 items
+
+netenv\netenv\client_server_test.py ..ss....                                                                                                                                                                                                               [ 61%] netenv\netenv\enc_test.py ..                                                                                                                                                                                                                               [ 76%] netenv\netenv\net_test.py .s                                                                                                                                                                                                                               [ 92%] netenv\netenv\util_test.py .                                                                                                                                                                                                                               [100%]
+
+
+------------------------------------------------------------------------------------------------- benchmark: 4 tests -------------------------------------------------------------------------------------------------
+Name (time in ms)                                      Min                 Max                Mean            StdDev              Median               IQR            Outliers       OPS            Rounds  Iterations
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_base_env_speed[Vectorize-ImageEnv]             2.8415 (1.0)        3.4141 (1.0)        2.9113 (1.0)      0.0633 (1.0)        2.9005 (1.0)      0.0665 (1.00)        30;11  343.4909 (1.0)         342           1
+test_base_env_speed[Vectorize-NopEnvironment]       3.6443 (1.28)       4.4682 (1.31)       3.7380 (1.28)     0.0806 (1.27)       3.7238 (1.28)     0.0665 (1.0)         24;12  267.5218 (0.78)        267           1
+test_tcp_env_speed[NopEnvironment]                140.0253 (49.28)    144.5581 (42.34)    141.8592 (48.73)    1.7579 (27.79)    141.3943 (48.75)    2.8343 (42.64)         4;0    7.0492 (0.02)          8           1
+test_tcp_env_speed[ImageEnv]                      141.1656 (49.68)    146.5984 (42.94)    143.4087 (49.26)    1.8108 (28.62)    143.2040 (49.37)    2.5828 (38.85)         3;0    6.9731 (0.02)          8           1
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+
+============================= test session starts ==============================
+platform linux -- Python 3.7.3, pytest-4.4.1, py-1.8.0, pluggy-0.9.0
+benchmark: 3.2.2 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /host/netenv
+plugins: benchmark-3.2.2
+collected 17 items
+
+netenv/netenv/client_server_test.py ............                         [ 70%]
+netenv/netenv/enc_test.py ..                                             [ 82%]
+netenv/netenv/net_test.py ..                                             [ 94%]
+netenv/netenv/util_test.py .                                             [100%]
+
+
+------------------------------------------------------------------------------------------------- benchmark: 8 tests -------------------------------------------------------------------------------------------------
+Name (time in ms)                                      Min                 Max                Mean            StdDev              Median               IQR            Outliers       OPS            Rounds  Iterations
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+test_base_env_speed[Vectorize-ImageEnv]             3.2376 (1.0)        5.8560 (1.14)       3.5606 (1.0)      0.2214 (1.25)       3.5547 (1.0)      0.1742 (1.0)          20;6  280.8496 (1.0)         273           1
+test_base_env_speed[Vectorize-NopEnvironment]       4.2095 (1.30)       5.1369 (1.0)        4.5511 (1.28)     0.1777 (1.0)        4.5238 (1.27)     0.2077 (1.19)         57;6  219.7292 (0.78)        214           1
+test_unix_env_speed[ImageEnv-True]                 98.7063 (30.49)    108.2974 (21.08)    103.8339 (29.16)    2.8973 (16.31)    103.8520 (29.22)    4.6056 (26.43)         3;0    9.6308 (0.03)         10           1
+test_unix_env_speed[NopEnvironment-True]          104.4572 (32.26)    116.8420 (22.75)    111.7578 (31.39)    3.6878 (20.76)    111.8619 (31.47)    4.3545 (24.99)         2;0    8.9479 (0.03)          9           1
+test_unix_env_speed[ImageEnv-False]               110.5172 (34.14)    119.6999 (23.30)    114.1049 (32.05)    3.1231 (17.58)    113.3912 (31.90)    4.5767 (26.27)         3;0    8.7639 (0.03)          8           1
+test_unix_env_speed[NopEnvironment-False]         113.8170 (35.15)    124.0949 (24.16)    119.0369 (33.43)    3.4079 (19.18)    119.8091 (33.70)    5.4738 (31.41)         3;0    8.4008 (0.03)          9           1
+test_tcp_env_speed[ImageEnv]                      166.9022 (51.55)    173.9572 (33.86)    170.1637 (47.79)    2.4398 (13.73)    170.3109 (47.91)    3.5119 (20.15)         3;0    5.8767 (0.02)          7           1
+test_tcp_env_speed[NopEnvironment]                169.4691 (52.34)    176.0878 (34.28)    173.6556 (48.77)    2.7009 (15.20)    174.5582 (49.11)    4.4511 (25.54)         1;0    5.7585 (0.02)          6           1
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Legend:
+  Outliers: 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.
+  OPS: Operations Per Second, computed as 1 / Mean
+========================== 17 passed in 19.56 seconds ==========================

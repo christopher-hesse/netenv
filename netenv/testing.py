@@ -25,5 +25,5 @@ def make_fake_socket(data=None):
     Create a stream and associated BytesIO for testing purposes
     """
     bio = io.BytesIO(data)
-    s = net._Stream(_FakeSocket(bio))
+    s = net.Stream(_FakeSocket(bio))
     return bio, s

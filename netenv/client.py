@@ -38,17 +38,17 @@ class Client:
                 and sys.maxsize > 2 ** 32
             ), "shared memory only enabled for 64-bit linux"
 
-        sock = util._create_socket(socket_kind)
+        sock = util.create_socket(socket_kind)
         sock.settimeout(util.SOCKET_TIMEOUT)
         sock.connect(self._addr)
-        self._stream = net._Stream(sock)
+        self._stream = net.Stream(sock)
 
         # server hello
-        self._stream.sendall(net._HELLO)
-        buf = bytearray(len(net._HELLO))
+        self._stream.sendall(net.HELLO)
+        buf = bytearray(len(net.HELLO))
         self._stream.recvall_into(buf)
         assert (
-            buf == net._HELLO
+            buf == net.HELLO
         ), f"invalid server hello, make sure that {addr} is the correct address"
 
         self.num_envs = num_envs
@@ -58,15 +58,15 @@ class Client:
             "use_shared_memory": self._use_shared_memory,
             "env_options": env_options,
         }
-        env_attrs = self._stream.request(net._CMD_INIT, env_data)
+        env_attrs = self._stream.request(net.CMD_INIT, env_data)
 
         self.metadata = env_attrs["metadata"]
         self.reward_range = env_attrs["reward_range"]
         self.spec = env_attrs["spec"]
-        self._action_space = enc._dict_to_dict_space(env_attrs["_action_space"])
-        self._step_space = enc._dict_to_dict_space(env_attrs["_step_space"])
+        self._action_space = enc.dict_to_dict_space(env_attrs["_action_space"])
+        self._step_space = enc.dict_to_dict_space(env_attrs["_step_space"])
 
-        self.action_space, self._process_act = util._convert_dict_space(
+        self.action_space, self._process_act = util.convert_dict_space(
             self._action_space, wrap=False, is_action=True
         )
 
@@ -75,9 +75,9 @@ class Client:
         step_buf = None
         if self._use_shared_memory:
             # allocate buffers from shared memory
-            act_space_size = util._calc_space_size(self.num_envs, self._action_space)
-            step_space_size = util._calc_space_size(self.num_envs, self._step_space)
-            fd = util._recv_fd(sock)
+            act_space_size = util.calc_space_size(self.num_envs, self._action_space)
+            step_space_size = util.calc_space_size(self.num_envs, self._step_space)
+            fd = util.recv_fd(sock)
             buf = memoryview(
                 mmap.mmap(
                     fileno=fd,
@@ -88,11 +88,11 @@ class Client:
             act_buf = buf[:act_space_size]
             step_buf = buf[act_space_size:]
 
-        self._allocated_act, self._allocated_act_buf = util._create_space_arrays(
+        self._allocated_act, self._allocated_act_buf = util.create_space_arrays(
             num_envs=self.num_envs, space=self._action_space, buf=act_buf
         )
 
-        self._allocated_step, self._allocated_step_buf = util._create_space_arrays(
+        self._allocated_step, self._allocated_step_buf = util.create_space_arrays(
             num_envs=self.num_envs, space=self._step_space, buf=step_buf
         )
 
@@ -103,7 +103,7 @@ class Client:
         # break out an observation space from that
         obs_spaces = list(self._step_space.spaces.items())[:-2]
         observation_space = gym.spaces.Dict(obs_spaces)
-        self.observation_space, self._process_obs = util._convert_dict_space(
+        self.observation_space, self._process_obs = util.convert_dict_space(
             observation_space, wrap=False, is_action=False
         )
         # slice out the observation dict from our step object
@@ -133,8 +133,8 @@ class Client:
         return r
 
     def reset(self):
-        self._stream.sendall(net._CMD_RESET)
-        assert self._stream.recvall(1) == net._CMD_RESET
+        self._stream.sendall(net.CMD_RESET)
+        assert self._stream.recvall(1) == net.CMD_RESET
         if not self._use_shared_memory:
             self._stream.recvall_into(self._allocated_step_buf)
 
@@ -145,12 +145,12 @@ class Client:
         actions = self._process_act(actions)
         for name in self._action_space.spaces:
             self._allocated_act[name][:] = actions[name]
-        self._stream.sendall(net._CMD_STEP)
+        self._stream.sendall(net.CMD_STEP)
         if not self._use_shared_memory:
             self._stream.sendall(self._allocated_act_buf)
 
     def step_wait(self):
-        assert self._stream.recvall(1) == net._CMD_STEP
+        assert self._stream.recvall(1) == net.CMD_STEP
         if not self._use_shared_memory:
             self._stream.recvall_into(self._allocated_step_buf)
 
@@ -165,7 +165,7 @@ class Client:
         return self.step_wait()
 
     def render(self, mode="human"):
-        resp = self._stream.request(net._CMD_RENDER, dict(mode=mode))
+        resp = self._stream.request(net.CMD_RENDER, dict(mode=mode))
         return resp["result"]
 
     def close(self):

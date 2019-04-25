@@ -3,19 +3,19 @@ import struct
 
 from . import enc
 
-_CMD_INIT = bytes([0])
-_CMD_RESET = bytes([1])
-_CMD_STEP = bytes([2])
-_CMD_RENDER = bytes([3])
+CMD_INIT = bytes([0])
+CMD_RESET = bytes([1])
+CMD_STEP = bytes([2])
+CMD_RENDER = bytes([3])
 
 _SOCKET_EXCEPTIONS = (ConnectionAbortedError, socket.timeout, BrokenPipeError)
 
-_HELLO = b"netenv_v1"
+HELLO = b"netenv_v1"
 
 _uint32_struct = struct.Struct("!L")
 
 
-class _Stream:
+class Stream:
     """
     Provide a few handy functions on top of a socket
     """

@@ -46,6 +46,6 @@ def test_alignment():
     ]
     for space in spaces:
         for buf in [bytearray(2 ** 20), None]:
-            arrays, _buf = util._create_space_arrays(3, space, align=ALIGNMENT, buf=buf)
+            arrays, _buf = util.create_space_arrays(3, space, align=ALIGNMENT, buf=buf)
             for arr in arrays.values():
                 assert arr.ctypes.data % ALIGNMENT == 0

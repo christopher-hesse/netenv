@@ -27,12 +27,12 @@ def test_stream_errors():
         client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_sock.connect(addr)
         server_sock, _addr = server.accept()
-        server_stream = net._Stream(server_sock)
+        server_stream = net.Stream(server_sock)
         if mode == "timeout":
             client_sock.settimeout(1)
         if mode == "close":
             server_stream.close()
-        client_stream = net._Stream(client_sock)
+        client_stream = net.Stream(client_sock)
 
         with pytest.raises(EOFError):
             if mode == "close":
@@ -56,7 +56,7 @@ def test_socket_stream():
         def server_loop():
             try:
                 sock, _addr = server.accept()
-                stream = net._Stream(sock)
+                stream = net.Stream(sock)
                 while True:
                     buf = bytearray(4096)
                     stream.recvall_into(buf)
@@ -71,7 +71,7 @@ def test_socket_stream():
             socket.AF_UNIX, socket.SOCK_STREAM  # pylint: disable=no-member
         )
         client.connect(socket_path)
-        stream = net._Stream(client)
+        stream = net.Stream(client)
         data = bytearray(8192)
         for i in range(len(data)):
             data[i] = i % 256

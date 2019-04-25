@@ -32,9 +32,9 @@ def test_serialize():
 
     for in_space in TEST_SPACES:
         write_bio, write_s = make_fake_socket()
-        write_s.send_dict(enc._dict_space_to_dict(in_space))
+        write_s.send_dict(enc.dict_space_to_dict(in_space))
         _read_bio, read_s = make_fake_socket(write_bio.getvalue())
-        out_space = enc._dict_to_dict_space(read_s.recv_dict())
+        out_space = enc.dict_to_dict_space(read_s.recv_dict())
         assert_spaces_equal(in_space, out_space)
 
 

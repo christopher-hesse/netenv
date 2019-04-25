@@ -35,8 +35,8 @@ class _ConnectionHandler:
         self._obs_spaces = None
 
     def init(self):
-        assert self._stream.recvall(1) == net._CMD_INIT
-        self._stream.sendall(net._CMD_INIT)
+        assert self._stream.recvall(1) == net.CMD_INIT
+        self._stream.sendall(net.CMD_INIT)
         env_data = self._stream.recv_dict()
         self._use_shared_memory = env_data["use_shared_memory"]
         num_envs = env_data["num_envs"]
@@ -45,7 +45,7 @@ class _ConnectionHandler:
         if not isinstance(
             self._venv.observation_space, gym.spaces.Dict
         ) or not isinstance(self._venv.action_space, gym.spaces.Dict):
-            self._venv = util._DictWrapper(self._venv)
+            self._venv = util.DictWrapper(self._venv)
 
         # the self._step space contains obs, rews, dones spaces
         self._obs_spaces = list(self._venv.observation_space.spaces.items())
@@ -60,16 +60,16 @@ class _ConnectionHandler:
                 self._venv, "reward_range", (-float("inf"), float("inf"))
             ),
             "metadata": getattr(self._venv, "metadata", {"render.modes": []}),
-            "_action_space": enc._dict_space_to_dict(self._venv.action_space),
-            "_step_space": enc._dict_space_to_dict(step_space),
+            "_action_space": enc.dict_space_to_dict(self._venv.action_space),
+            "_step_space": enc.dict_space_to_dict(step_space),
         }
         self._stream.send_dict(env_attrs)
 
         act_buf = None
         step_buf = None
         if self._use_shared_memory:
-            act_space_size = util._calc_space_size(num_envs, self._venv.action_space)
-            step_space_size = util._calc_space_size(num_envs, step_space)
+            act_space_size = util.calc_space_size(num_envs, self._venv.action_space)
+            step_space_size = util.calc_space_size(num_envs, step_space)
             total_size = act_space_size + step_space_size
             # there are at least a few options for shared memory on linux:
             # file-backed mmap:
@@ -86,7 +86,7 @@ class _ConnectionHandler:
             #   unfortunately it seems to require some ctypes stuff to make the syscall
             # posix ipc:
             #   this is probably the most reasonable way, but requires the posix_ipc package
-            fd = util._memfd_create("netenv-shared-memory")
+            fd = util.memfd_create("netenv-shared-memory")
             assert os.write(fd, b"\x00" * total_size) == total_size
             mm = mmap.mmap(
                 fileno=fd,
@@ -94,14 +94,14 @@ class _ConnectionHandler:
                 flags=mmap.MAP_SHARED,  # pylint: disable=no-member
             )
             buf = memoryview(mm)
-            util._send_fd(self._conn, fd)
+            util.send_fd(self._conn, fd)
             act_buf = buf[:act_space_size]
             step_buf = buf[act_space_size:]
 
-        self._act, self._act_buf = util._create_space_arrays(
+        self._act, self._act_buf = util.create_space_arrays(
             num_envs, self._venv.action_space, buf=act_buf
         )
-        self._step, self._step_buf = util._create_space_arrays(
+        self._step, self._step_buf = util.create_space_arrays(
             num_envs, step_space, buf=step_buf
         )
 
@@ -119,33 +119,33 @@ class _ConnectionHandler:
 
     def _handle(self):
         self._conn.settimeout(util.SOCKET_TIMEOUT)
-        self._stream = net._Stream(self._conn)
+        self._stream = net.Stream(self._conn)
 
         # exchange hellos with the client to make sure we are connected correctly
-        buf = bytearray(len(net._HELLO))
+        buf = bytearray(len(net.HELLO))
         self._stream.recvall_into(buf)
         assert (
-            buf == net._HELLO
+            buf == net.HELLO
         ), f"invalid client hello, make sure that client is correct version"
-        self._stream.sendall(net._HELLO)
+        self._stream.sendall(net.HELLO)
 
         self.init()
 
         while True:
             cmd = self._stream.recvall(1)
 
-            if cmd == net._CMD_RESET:
+            if cmd == net.CMD_RESET:
                 # copy the obs into our step object and send the buffer
                 # for the step object
                 obs = self._venv.reset()
                 for name, _space in self._obs_spaces:
                     self._step[name][:] = obs[name]
 
-                self._stream.sendall(net._CMD_RESET)
+                self._stream.sendall(net.CMD_RESET)
                 if not self._use_shared_memory:
                     self._stream.sendall(self._step_buf)
 
-            elif cmd == net._CMD_STEP:
+            elif cmd == net.CMD_STEP:
                 if not self._use_shared_memory:
                     self._stream.recvall_into(self._act_buf)
 
@@ -158,14 +158,14 @@ class _ConnectionHandler:
                 self._step["_rews"][:] = rews
                 self._step["_dones"][:] = dones
 
-                self._stream.sendall(net._CMD_STEP)
+                self._stream.sendall(net.CMD_STEP)
                 if not self._use_shared_memory:
                     self._stream.sendall(self._step_buf)
 
-            elif cmd == net._CMD_RENDER:
+            elif cmd == net.CMD_RENDER:
                 render_args = self._stream.recv_dict()
                 result = self._venv.render(mode=render_args["mode"])
-                self._stream.sendall(net._CMD_RENDER)
+                self._stream.sendall(net.CMD_RENDER)
                 render_args = self._stream.send_dict(dict(result=result))
 
             else:
@@ -193,7 +193,7 @@ class Server:
         Start listening for connections before run() is executed
         This is useful when binding to a dynamic port.
         """
-        self._sock = util._create_socket(self._socket_kind)
+        self._sock = util.create_socket(self._socket_kind)
         self._sock.bind(self._addr)
         return self._sock.getsockname()
 
