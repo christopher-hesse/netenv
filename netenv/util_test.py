@@ -5,6 +5,7 @@ from . import util
 
 ALIGNMENT = 64
 
+
 TEST_SPACES = [
     gym.spaces.Dict(
         [

@@ -2,6 +2,7 @@ import threading
 import os
 import functools
 import sys
+import tempfile
 
 import pytest
 import numpy as np
@@ -191,7 +192,7 @@ def test_simple_env(use_shared_memory, dict_obs_space):
         addr = ("127.0.0.1", 0)
     else:
         socket_kind = "unix"
-        addr = "/tmp/netenv.sock"
+        addr = os.path.join(tempfile.mkdtemp(), "netenv.sock")
         if os.path.exists(addr):
             os.remove(addr)
 
@@ -288,7 +289,7 @@ def env_speed(kind, make_env, benchmark, use_shared_memory=False):
             return vec_env_class([make_env] * num_envs)
 
         if socket_kind == "unix":
-            addr = "/tmp/netenv.sock"
+            addr = os.path.join(tempfile.mkdtemp(), "netenv.sock")
             if os.path.exists(addr):
                 os.remove(addr)
         elif socket_kind == "tcp":
