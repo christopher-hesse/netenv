@@ -9,5 +9,4 @@ ENV PATH=/root/miniconda3/bin:$PATH
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ADD env.yaml .
-RUN conda env create --name env --file env.yaml
-ENV PATH=/root/miniconda3/env/bin:$PATH
+RUN conda env update --name base --file env.yaml
