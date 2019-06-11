@@ -78,7 +78,7 @@ class _ConnectionHandler:
             #   should flush periodically
             # anonymous mmap:
             #   you can easily create an anonymous mmap, but it has no file descriptor to send to
-            #   the other process.  if the server is a child of the client that'self._stream fine since it
+            #   the other process.  if the server is a child of the client that's fine since it
             #   can inherit the mapping.  you can also map /dev/zero to create a fd, but sharing
             #   that fd doesn't seem to work even with MAP_SHARED
             # memfd_create mmap:
